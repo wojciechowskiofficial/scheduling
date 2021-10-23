@@ -24,67 +24,54 @@ def Main():
         for j in range(n):
             s_matrix[i][j] = next(gen_one_string_in)
     # start scheduling
+    # init stuff
     curr_t = np.zeros(n)
     scheduling = list()
     p_transposed = prd_matrix[:, 0].transpose()
     r_transposed = prd_matrix[:, 1].transpose()
     d_transposed = prd_matrix[:, 2].transpose()
     ids = np.arange(n)
-    next_task = -1
-    l_max = 0
-    for i in range(n):
-        r_transposed_og = r_transposed
-        if i != 0:
-            print(curr_t.shape, s_matrix.shape)
-            curr_t += s_matrix[next_task][:]
-        r_transposed = np.where(r_transposed < curr_t, curr_t, r_transposed)
-        lateness = r_transposed + p_transposed - d_transposed
-        r_transposed = r_transposed_og
-        if i != 0:
-            p_transposed = np.delete(p_transposed, next_task)
-            r_transposed = np.delete(r_transposed, next_task)
-            d_transposed = np.delete(d_transposed, next_task)
-            ids = np.delete(ids, next_task)
-            s_matrix = np.delete(s_matrix, next_task, 0)
-            s_matrix = np.delete(s_matrix, next_task, 1)
-            lateness = np.delete(lateness, next_task)
+    # pick the first task
+    lateness = r_transposed + p_transposed - d_transposed
+    next_task = np.argmin(r_transposed)
+    l_max = lateness[next_task]
+    scheduling.append(ids[next_task])
+    curr_t = np.full(shape=r_transposed.shape, fill_value=(r_transposed[next_task] + p_transposed[next_task]))
+    # curr_t -> befor any s_matrix addition
+    for i in range(1, n, 1):
+        # next_task is still from previous iteration
+        # curr_t is after processing the previous task and before adding s times
+        # add s_matrix to curr_t
+        curr_t += s_matrix[next_task][:]
+        # delete previous task
+        p_transposed = np.delete(p_transposed, next_task)
+        r_transposed = np.delete(r_transposed, next_task)
+        d_transposed = np.delete(d_transposed, next_task)
+        ids = np.delete(ids, next_task)
+        s_matrix = np.delete(s_matrix, next_task, 0)
+        s_matrix = np.delete(s_matrix, next_task, 1)
+        lateness = np.delete(lateness, next_task)
+        curr_t = np.delete(curr_t, next_task)
+        # merge curr_t with r times onto tmp_r_transposed
+        tmp_r_transposed = np.where(r_transposed < curr_t, curr_t, r_transposed)
+        # calculate lateness vector
+        lateness = tmp_r_transposed + p_transposed - d_transposed
+        # choose new next task
         next_task = np.argmax(lateness)
+        # update l_max if needed
         if l_max < lateness[next_task]:
             l_max = lateness[next_task]
-        print(f'id: {ids[next_task]} lateness: {lateness[next_task]} curr_t: {curr_t[next_task]}')
+        # add new next task to scheduling list
         scheduling.append(ids[next_task])
-        if i != 0:
-            curr_t = np.full(shape=curr_t.shape[0] - 1, fill_value=curr_t[next_task])
-        else:
-            curr_t = np.full(shape=curr_t.shape, fill_value=curr_t[next_task])
-        curr_t = r_transposed[next_task] + p_transposed[next_task]
-        print(f'next curr_t {curr_t}')
-    print(l_max)
-    print(scheduling)
-    exit(0)
-        
-    
-
-
-
-
-
-    l_max = one_string_out[0]
-    scheduling = np.empty((n, ), np.int64)
-    for i in range(1, n + 1):
-        scheduling[i - 1] = one_string_out[i]
-    # verify
-    max_late = 0
-    now = 0
-    for i in range(n):
-        if now < prd_matrix[scheduling[i]][1]:
-            now = prd_matrix[scheduling[i]][1]
-        if max_late < now + prd_matrix[scheduling[i]][0] - prd_matrix[scheduling[i]][2]:
-            max_late = now + prd_matrix[scheduling[i]][0] - prd_matrix[scheduling[i]][2]
-        now += prd_matrix[scheduling[i]][0]
-        if i != n - 1:
-            now += s_matrix[scheduling[i]][scheduling[i + 1]]
-    print(max_late)
+        # populate chosen curr_t onto the whole vector
+        curr_t = np.full(shape=curr_t.shape, 
+                         fill_value=tmp_r_transposed[next_task] + p_transposed[next_task])
+    # write to file
+    with open(args.out_name, 'w') as f:
+        f.write(str(l_max))
+        f.write('\n')
+        for task in scheduling:
+            f.write(str(task) + ' ')
 
 
 if __name__ == '__main__':
