@@ -24,30 +24,42 @@ def Main():
         for j in range(n):
             s_matrix[i][j] = next(gen_one_string_in)
     # start scheduling
-    curr_t = 0
+    curr_t = np.zeros(n)
     scheduling = list()
     p_transposed = prd_matrix[:, 0].transpose()
     r_transposed = prd_matrix[:, 1].transpose()
     d_transposed = prd_matrix[:, 2].transpose()
     ids = np.arange(n)
+    next_task = -1
+    l_max = 0
     for i in range(n):
         r_transposed_og = r_transposed
+        if i != 0:
+            print(curr_t.shape, s_matrix.shape)
+            curr_t += s_matrix[next_task][:]
         r_transposed = np.where(r_transposed < curr_t, curr_t, r_transposed)
         lateness = r_transposed + p_transposed - d_transposed
+        r_transposed = r_transposed_og
+        if i != 0:
+            p_transposed = np.delete(p_transposed, next_task)
+            r_transposed = np.delete(r_transposed, next_task)
+            d_transposed = np.delete(d_transposed, next_task)
+            ids = np.delete(ids, next_task)
+            s_matrix = np.delete(s_matrix, next_task, 0)
+            s_matrix = np.delete(s_matrix, next_task, 1)
+            lateness = np.delete(lateness, next_task)
         next_task = np.argmax(lateness)
+        if l_max < lateness[next_task]:
+            l_max = lateness[next_task]
+        print(f'id: {ids[next_task]} lateness: {lateness[next_task]} curr_t: {curr_t[next_task]}')
         scheduling.append(ids[next_task])
+        if i != 0:
+            curr_t = np.full(shape=curr_t.shape[0] - 1, fill_value=curr_t[next_task])
+        else:
+            curr_t = np.full(shape=curr_t.shape, fill_value=curr_t[next_task])
         curr_t = r_transposed[next_task] + p_transposed[next_task]
-        # TODO: do the backward s addition
-        # make sure s matrix deletion is valid
-        if i != p_transposed.shape[0] - 2:
-            print(p_transposed.shape[0] - 2, next_task + 1)
-            curr_t += s_matrix[next_task][next_task + 1]
-        p_transposed = np.delete(p_transposed, next_task)
-        r_transposed = np.delete(r_transposed, next_task)
-        d_transposed = np.delete(d_transposed, next_task)
-        ids = np.delete(ids, next_task)
-        s_matrix = np.delete(s_matrix, next_task, 0)
-        s_matrix = np.delete(s_matrix, next_task, 1)
+        print(f'next curr_t {curr_t}')
+    print(l_max)
     print(scheduling)
     exit(0)
         
