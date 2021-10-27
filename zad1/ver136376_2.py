@@ -44,7 +44,7 @@ def Main():
         now += prd_matrix[scheduling[i]][0]
         if i != n - 1:
             now += s_matrix[scheduling[i]][scheduling[i + 1]]
-    print(f'algo: {results} ver: {max_late} t: {run_time}')
+    print(str(results) + '\t' + str(max_late) + '\t' + str(run_time))
 
 
 if __name__ == '__main__':
