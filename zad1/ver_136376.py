@@ -1,14 +1,9 @@
-import argparse
+import sys
 import numpy as np
 
 def Main():
-    # argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--in_name', type=str)
-    parser.add_argument('--out_name', type=str)
-    args = parser.parse_args()
     # load
-    with open(args.in_name, 'r') as f:
+    with open(sys.argv[1], 'r') as f:
         one_string_in = f.read().split()
     gen_one_string_in = iter(one_string_in)
     n = int(next(gen_one_string_in))
@@ -20,7 +15,7 @@ def Main():
     for i in range(n):
         for j in range(n):
             s_matrix[i][j] = next(gen_one_string_in)
-    with open(args.out_name, 'r') as f:
+    with open(sys.argv[2], 'r') as f:
         one_string_out = f.read().split()
     l_max = one_string_out[0]
     scheduling = np.empty((n, ), np.int64)

@@ -1,17 +1,12 @@
-import argparse
 import numpy as np
+import sys
 
 class Task:
     pass
 
 def Main():
-    # argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--in_name', type=str)
-    parser.add_argument('--out_name', type=str)
-    args = parser.parse_args()
     # load
-    with open(args.in_name, 'r') as f:
+    with open(sys.argv[1], 'r') as f:
         one_string_in = f.read().split()
     gen_one_string_in = iter(one_string_in)
     n = int(next(gen_one_string_in))
@@ -67,7 +62,7 @@ def Main():
         curr_t = np.full(shape=curr_t.shape, 
                          fill_value=tmp_r_transposed[next_task] + p_transposed[next_task])
     # write to file
-    with open(args.out_name, 'w') as f:
+    with open(sys.argv[2], 'w') as f:
         f.write(str(l_max))
         f.write('\n')
         for task in scheduling:
