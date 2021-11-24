@@ -43,7 +43,12 @@ def Main():
             max_late = now + prd_matrix[scheduling[i]][0] - prd_matrix[scheduling[i]][2]
         now += prd_matrix[scheduling[i]][0]
         if i != n - 1:
-            now += s_matrix[scheduling[i]][scheduling[i + 1]]
+            try:
+                now += s_matrix[scheduling[i]][scheduling[i + 1]]
+            except IndexError:
+                print(i)
+                print(scheduling)
+                print(smatrix)
     print(str(results) + '\t' + str(max_late) + '\t' + str(run_time))
 
 
