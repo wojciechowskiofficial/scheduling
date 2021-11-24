@@ -82,11 +82,13 @@ def Main():
         for task_id in schedule[i]:
             clock = max(clock, rs[task_id])
             scaled_pi = ps[task_id] / bs[i]
+            print(rs[task_id])
             completion = clock + scaled_pi
             if completion > ds[task_id]:
                 obj += ws[task_id]
             clock += scaled_pi
         print(obj)
+    print(sorted_ids)
 
 
     to_string = lambda x : [str(el) for el in x]
@@ -96,7 +98,7 @@ def Main():
         f.write(str(obj))
         f.write('\n')
         for i in range(4):
-            f.write(schedule[i])
+            f.write(schedule[i] + ' ')
             f.write('\n')
 
 if __name__ == '__main__':
