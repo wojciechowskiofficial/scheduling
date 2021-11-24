@@ -24,9 +24,7 @@ def Main():
     objective = one_string_out[0]
     true_obj = 0
     for i in range(1, 5, 1):
-        print(one_string_out[i])
         scheduling = [int(value) for value in one_string_out[i].split(' ')[:-1]]
-        print(scheduling)
         curr_t = 0
         for task_id in scheduling:
             curr_t = max(curr_t, rs[task_id])
