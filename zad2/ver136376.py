@@ -33,6 +33,7 @@ def Main():
             if completion > ds[task_id]:
                 true_obj += ws[task_id]
             curr_t += scaled_pi
+        print(true_obj)
     print(true_obj)
 
 if __name__ == '__main__':

@@ -43,7 +43,7 @@ def Main():
             # lateness, and if yes schedule at least 
             # powerful machine
             for j in range(4):
-                c_i = rs[i] + ps[i] / bs[j]
+                c_i = max(clock, rs[i]) + ps[i] / bs[j]
                 if c_i <= ds[i] and c_mem[j] <= clock and rs[i] <= clock:
                     machine = j
                     is_break = True
@@ -56,14 +56,13 @@ def Main():
             # check if able to schedule ith task at all,
             # and if yes schedule at least powerful machine
             for j in range(4):
-                c_i = rs[i] + ps[i] / bs[j]
+                c_i = max(clock, rs[i]) + ps[i] / bs[j]
                 if c_mem[j] <= clock and rs[i] <= clock:
                     machine = j
                     is_break = True
                     break
             # update and go to next task
             if is_break:
-                obj += ws[i]
                 schedule[machine].append(i)
                 c_mem[machine] = max(clock, rs[i]) + ps[i] / bs[machine]
                 break
@@ -72,10 +71,33 @@ def Main():
             # no task is available 
             # increment clock == wait
             else:
-                print(rs[i], clock)
-                clock += 1
-    print(obj)
-    print(schedule)
+                # increment clock in such way, that
+                # it increases to the moment
+                # when next feasible action occurs
+                inc = max(min(c_mem), rs[i])
+                clock += inc
+    for i in range(4):
+        clock = 0
+        print(schedule[i])
+        for task_id in schedule[i]:
+            clock = max(clock, rs[task_id])
+            scaled_pi = ps[task_id] / bs[i]
+            completion = clock + scaled_pi
+            if completion > ds[task_id]:
+                obj += ws[task_id]
+            clock += scaled_pi
+        print(obj)
+
+
+    to_string = lambda x : [str(el) for el in x]
+    for i in range(len(schedule)):
+        schedule[i] = ' '.join(to_string(schedule[i]))
+    with open(sys.argv[2], 'w') as f:
+        f.write(str(obj))
+        f.write('\n')
+        for i in range(4):
+            f.write(schedule[i])
+            f.write('\n')
 
 if __name__ == '__main__':
     Main()
