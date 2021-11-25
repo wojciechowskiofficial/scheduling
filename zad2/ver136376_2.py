@@ -1,7 +1,16 @@
 import sys
 import numpy as np
+import time
+import os
 
-def Main():
+def Main(): 
+    # deploy the algorithm
+    command = 'python ' + sys.argv[3] + ' ' + sys.argv[1] + ' ' + sys.argv[2]
+    # start timing the algorithm
+    start = time.time()
+    os.system(command)
+    stop = time.time()
+    run_time = stop - start
     # load
     with open(sys.argv[1], 'r') as f:
         one_string_in = f.read().split()
@@ -25,18 +34,15 @@ def Main():
     true_obj = 0
     for i in range(1, 5, 1):
         scheduling = [int(value) for value in one_string_out[i].split(' ')[:-1]]
-        print(scheduling)
         curr_t = 0
         for task_id in scheduling:
             curr_t = max(curr_t, rs[task_id])
             scaled_pi = ps[task_id] / bs[i -1]
-            print(rs[task_id])
             completion = curr_t + scaled_pi
             if completion > ds[task_id]:
                 true_obj += ws[task_id]
             curr_t += scaled_pi
-        print(true_obj)
-    print(true_obj)
+    print(str(objective) + '\t' + str(true_obj) + '\t' + str(run_time))
 
 if __name__ == '__main__':
     Main()

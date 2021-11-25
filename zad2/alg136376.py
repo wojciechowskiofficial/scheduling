@@ -19,9 +19,15 @@ def Main():
     rs = prdw_matrix[1]
     ds = prdw_matrix[2]
     ws = prdw_matrix[3]
+    og_ps = ps
+    og_rs = rs
+    og_ds = ds
+    og_ws = ws
     # compute
     # argsort over rs
     sorted_ids = np.argsort(rs)
+    original_ids = np.arange(n)
+    original_ids = original_ids[sorted_ids]
     ps = ps[sorted_ids]
     rs = rs[sorted_ids]
     ds = ds[sorted_ids]
@@ -43,7 +49,7 @@ def Main():
             # lateness, and if yes schedule at least 
             # powerful machine
             for j in range(4):
-                c_i = max(clock, rs[i]) + ps[i] / bs[j]
+                c_i = rs[i] + ps[i] / bs[j]
                 if c_i <= ds[i] and c_mem[j] <= clock and rs[i] <= clock:
                     machine = j
                     is_break = True
@@ -56,7 +62,7 @@ def Main():
             # check if able to schedule ith task at all,
             # and if yes schedule at least powerful machine
             for j in range(4):
-                c_i = max(clock, rs[i]) + ps[i] / bs[j]
+                c_i = rs[i] + ps[i] / bs[j]
                 if c_mem[j] <= clock and rs[i] <= clock:
                     machine = j
                     is_break = True
@@ -77,20 +83,21 @@ def Main():
                 inc = max(min(c_mem), rs[i])
                 clock += inc
     for i in range(4):
+        for j in range(len(schedule[i])):
+            schedule[i][j] = np.where(sorted_ids == schedule[i][j])[0][0]
+    ps = og_ps
+    rs = og_rs
+    ds = og_ds
+    ws = og_ws
+    for i in range(4):
         clock = 0
-        print(schedule[i])
         for task_id in schedule[i]:
             clock = max(clock, rs[task_id])
             scaled_pi = ps[task_id] / bs[i]
-            print(rs[task_id])
             completion = clock + scaled_pi
             if completion > ds[task_id]:
                 obj += ws[task_id]
             clock += scaled_pi
-        print(obj)
-    print(sorted_ids)
-
-
     to_string = lambda x : [str(el) for el in x]
     for i in range(len(schedule)):
         schedule[i] = ' '.join(to_string(schedule[i]))
